@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo</title>
+    <style>
+      body {
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <h2>{{ message }}</h2>
+
+      <form @submit.prevent="addNewTodo">
+        <input type="text" v-model="newTodo.text" />
+        <input type="date" v-model="newTodo.date" />
+        <button type="submit">Add</button>
+      </form>
+      <hr />
+
+      <button @click="changeView">
+        {{ defaultview ? 'Group By Date' : 'Default view'}}
+      </button>
+
+      <div v-if="defaultview">
+        <ul>
+          <li v-for="todo in todos">{{todo.date}} , {{ todo.text}}</li>
+        </ul>
+      </div>
+      <div v-else>
+        <div v-for="d in Object.keys(todosByDate)">
+          <p>{{d}}</p>
+          <ul>
+            <li v-for="todo in todosByDate[d]">{{ todo.date}},{{todo.text}}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <script>
+      const { createApp, ref } = Vue;
+
+      createApp({
+        setup() {
+          const message = ref("Todo");
+          const todos = ref([]);
+          const todosByDate = ref({});
+          const defaultview = ref(true);
+
+          const newTodo = ref({
+            text: "",
+            date: null,
+          });
+
+          const addNewTodo = () => {
+            todos.value.push(newTodo.value);
+            newTodo.value = {
+              text: "",
+              date: null,
+            };
+            todosByDate.value = Object.groupBy(
+              todos.value,
+              (todo) => todo.date
+            );
+          };
+
+          const changeView = () => {
+            defaultview.value = !defaultview.value;
+          };
+
+          return {
+            message,
+            todos,
+            newTodo,
+            addNewTodo,
+            todosByDate,
+            defaultview,
+            changeView,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
